@@ -8,6 +8,7 @@ This script sets up:
 - nano syntax highlighting
 - pacman color
 - starship zsh theme
+- wezterm + fonts
 
 skip upgrade
 

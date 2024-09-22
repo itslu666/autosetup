@@ -85,6 +85,28 @@ function install_zsh_plugins() {
     source ~/.zshrc
 }
 
+function install_zsh_starship() {
+    # check if curl is installed
+    if ! command -v curl &> /dev/null; then
+        echo "installing curl..."
+        case "${package_manager[$os]}" in
+            pacman)
+                sudo pacman -S --needed curl
+                ;;
+            apt)
+                sudo apt update && sudo apt install -y curl
+                ;;
+            dnf)
+                sudo dnf install -y curl
+                ;;
+        esac
+    fi
+
+    echo "installing starship..."
+    curl -sS https://starship.rs/install.sh | sh
+    echo 'eval "$(starship init zsh)"' >> ~/.zshrc
+}
+
 function install_nano_syntax_highlighting() {
     # check if nano is installed
     if ! command -v nano &> /dev/null; then
@@ -102,6 +124,7 @@ function install_nano_syntax_highlighting() {
         esac
     fi
 
+    echo "installing nano syntax highlighting..."
     git clone https://github.com/scopatz/nanorc.git
     cp -r nanorc/*.nanorc .nano
     echo "include .nano/*.nanorc" >> ~/.nanorc
@@ -134,4 +157,12 @@ fi
 
 if [[ ! " $@ " =~ " --skip-nano-synhigh " ]]; then
     install_nano_syntax_highlighting
+fi
+
+if [[ "$os" == "arch" ]] && [[ ! " $@ " =~ " --skip-pacman-color " ]]; then
+    sudo sed -i 's/^#Color/Color/' /etc/pacman.conf
+fi
+
+if [[ ! " $@ " =~ " --skip-zsh-starship " ]]; then
+    install_zsh_starship
 fi
