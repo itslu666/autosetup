@@ -10,7 +10,8 @@ package_manager=(
     [fedora]="dnf"
 )
 
-if [[ -n "$(package_manager[$os])" ]] && [[ ! " $@ " =~ " --skip-upgrade " ]]; then
+# check if OS is recognised 
+if [[ -n "$(package_manager[$os])" ]]; then
     echo "upgrading system..."
     case "${package_manager[$os]}" in
         pacman)
@@ -28,7 +29,6 @@ else
     exit 0
 fi
 
-# git install func
 function install_git() {
     echo "Installing git..."
     case "${package_manager[$os]}" in
@@ -44,7 +44,6 @@ function install_git() {
     esac
 }
 
-# yay install func
 function install_yay() {
     echo "installing yay..."
     sudo pacman -S --needed base-devel
@@ -56,26 +55,21 @@ function install_yay() {
     echo "Successfully installed yay"
 }
 
-# zsh instal func
 function install_zsh() {
+    # check if curl is installed
     if ! command -v curl &> /dev/null; then
-        if [[ -n "$(package_manager[$os])" ]]; then
         echo "installing curl..."
-            case "${package_manager[$os]}" in
-                pacman)
-                    sudo pacman -S --needed curl
-                    ;;
-                apt)
-                    sudo apt update && sudo apt install -y curl
-                    ;;
-                dnf)
-                    sudo dnf install -y curl
-                    ;;
-            esac
-        else
-            echo "Curl is not installed and the package manager was not recognized. Install curl manually."
-            exit 0
-        fi
+        case "${package_manager[$os]}" in
+            pacman)
+                sudo pacman -S --needed curl
+                ;;
+            apt)
+                sudo apt update && sudo apt install -y curl
+                ;;
+            dnf)
+                sudo dnf install -y curl
+                ;;
+        esac
     fi
 
     echo "installing zsh..."
@@ -89,6 +83,36 @@ function install_zsh_plugins() {
 
     sed -i '/^plugins=(/s/\(git\)/\1 zsh-autosuggestions zsh-syntax-highlighting/' ~/.zshrc
     source ~/.zshrc
+}
+
+function install_nano_syntax_highlighting() {
+    # check if nano is installed
+    if ! command -v nano &> /dev/null; then
+        echo "installing nano..."
+        case "${package_manager[$os]}" in
+            pacman)
+                sudo pacman -S --needed nano
+                ;;
+            apt)
+                sudo apt update && sudo apt install -y nano
+                ;;
+            dnf)
+                sudo dnf install -y nano
+                ;;
+        esac
+    fi
+
+    git clone https://github.com/scopatz/nanorc.git
+    cp -r nanorc/*.nanorc .nano
+    echo "include .nano/*.nanorc" >> ~/.nanorc
+
+    read -p "Install nano syntax highlighting for sudo too? [Y/n]: " choice
+    choice=${choice:-Y}
+
+    if [[ "$choice" =~ ^[Yy]$ ]]; then
+        sudo cp -r nanorc/*.nanorc /usr/share/nano
+        sudo echo "include /usr/share/nano/*.nanorc" >> /etc/nanorc
+    fi
 }
 
 # only install yay if arch os
@@ -106,3 +130,8 @@ if [[ ! " $@ " =~ " --skip-zsh " ]]; then
     if [[ "$choice" =~ ^[Yy]$ ]]; then
         install_zsh_plugins
     fi
+fi
+
+if [[ ! " $@ " =~ " --skip-nano-synhigh " ]]; then
+    install_nano_syntax_highlighting
+fi
