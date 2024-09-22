@@ -10,7 +10,7 @@ package_manager=(
     [fedora]="dnf"
 )
 
-if [[ -n "$(package_manager[$os])" ]]; then
+if [[ -n "$(package_manager[$os])" ]] && [[ ! " $@ " =~ " --skip-upgrade " ]]; then
     echo "upgrading system..."
     case "${package_manager[$os]}" in
         pacman)
@@ -60,6 +60,7 @@ function install_yay() {
 function install_zsh() {
     if ! command -v curl &> /dev/null; then
         if [[ -n "$(package_manager[$os])" ]]; then
+        echo "installing curl..."
             case "${package_manager[$os]}" in
                 pacman)
                     sudo pacman -S --needed curl
@@ -76,13 +77,32 @@ function install_zsh() {
             exit 0
         fi
     fi
-    
+
+    echo "installing zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 }
 
-if [ -z "$1" ]; then
-    # only install yay if arch os
-    if [[ "$os" == "arch" ]] && [[ ! " $@ " =~ " --skip-yay " ]]; then
-        install_git
-        install_yay
+function install_zsh_plugins() {
+    echo "installing zsh plugins..."
+    git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
+
+    sed -i '/^plugins=(/s/\(git\)/\1 zsh-autosuggestions zsh-syntax-highlighting/' ~/.zshrc
+    source ~/.zshrc
+}
+
+# only install yay if arch os
+if [[ "$os" == "arch" ]] && [[ ! " $@ " =~ " --skip-yay " ]]; then
+    install_git
+    install_yay
+fi
+
+if [[ ! " $@ " =~ " --skip-zsh " ]]; then
+    install_zsh
+
+    read -p "Install zsh-autosuggestions & zsh-syntax-highlighting? [Y/n]: " choice
+    choice=${choice:-Y}
+
+    if [[ "$choice" =~ ^[Yy]$ ]]; then
+        install_zsh_plugins
     fi
