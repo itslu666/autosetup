@@ -177,3 +177,6 @@ fi
 if [[ ! " $@ " =~ " --skip-zsh-starship " ]]; then
     install_zsh_starship
 fi
+
+chsh -s $(which zsh)
+exec zsh
