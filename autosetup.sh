@@ -13,7 +13,7 @@ package_manager=(
 )
 
 # check if OS is recognised 
-if [[ -n "$(package_manager[$os])" ]]; then
+if [[ -n "${package_manager[$os]}" ]]; then
     echo "upgrading system..."
     case "${package_manager[$os]}" in
         pacman)
@@ -28,7 +28,7 @@ if [[ -n "$(package_manager[$os])" ]]; then
     esac
 else
     echo "Unable to find package manager (not pacman, apt or dnf), you may want to file an issue."
-    exit 0
+    exit 1
 fi
 
 function check_installed() {
@@ -118,7 +118,7 @@ function install_nano_syntax_highlighting() {
 
     if [[ "$choice" =~ ^[Yy]$ ]]; then
         sudo cp -r nanorc/*.nanorc /usr/share/nano
-        sudo echo "include /usr/share/nano/*.nanorc" >> /etc/nanorc
+        sudo tee -a /etc/nanorc <<< "include /usr/share/nano/*.nanorc"
     fi
 }
 
@@ -126,27 +126,26 @@ function install_wezterm_fonts() {
     check_installed "wezterm"
     check_installed "unzip"
 
-    mkdir temp
+    local temp_dir=$(mktemp -d)
+
     # jetbrains
     wget https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip
-    unzip JetBrainsMono-2.304.zip -d temp
+    unzip JetBrainsMono-2.304.zip -d "$temp_dir"
     sudo mkdir -p /usr/share/fonts/JettBrainsMono
-    sudo cp -r temp/fonts/ttf/* /usr/share/fonts/JettBrainsMono
-    rm -rf temp
+    sudo cp -r "$temp_dir"/fonts/ttf/* /usr/share/fonts/JettBrainsMono
+    rm -rf "$temp_dir"
 
-    mkdir temp
     # nerdfont (caskaydiacove)
     wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip
-    unzip CascadiaCode.zip -d temp
+    unzip CascadiaCode.zip -d "$temp_dir"
     sudo mkdir -p /usr/share/fonts/CaskaydiaCove
-    sudo cp temp/*.ttf /usr/share/fonts/CaskaydiaCove
-    rm -rf temp
+    sudo cp "$temp_dir"/*.ttf /usr/share/fonts/CaskaydiaCove
+    rm -rf "$temp_dir"
 
-    mkdir temp
     # noto color emoji
     wget https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoColorEmoji.ttf
-    sudo cp temp/NotoColorEmoji.ttf /usr/share/fonts
-    rm -rf temp
+    sudo cp "$temp_dir"/NotoColorEmoji.ttf /usr/share/fonts
+    rm -rf "$temp_dir"
 }
 
 # only install yay if arch os
