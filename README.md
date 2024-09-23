@@ -9,6 +9,7 @@ This script sets up:
 - pacman color
 - starship zsh theme
 - wezterm + fonts
+- arch pacman multilib
 
 skip upgrade
 

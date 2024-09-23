@@ -64,7 +64,7 @@ function install_git() {
 }
 
 function install_yay() {
-    if ! command -v $1 &> /dev/null; then
+    if ! command -v "yay" &> /dev/null; then
         echo "installing yay..."
         sudo pacman -S --needed base-devel
         git clone https://aur.archlinux.org/yay.git
@@ -81,7 +81,7 @@ function install_zsh() {
     check_installed "zsh"
 
     echo "installing zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 }
 
 function install_zsh_plugins() {
