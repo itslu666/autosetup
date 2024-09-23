@@ -76,6 +76,7 @@ function install_yay() {
 function install_zsh() {
     # check if curl is installed
     check_installed "curl"
+    check_installed "zsh"
 
     echo "installing zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -110,6 +111,7 @@ function install_nano_syntax_highlighting() {
 
     echo "installing nano syntax highlighting..."
     git clone https://github.com/scopatz/nanorc.git
+    mkdir .nano
     cp -r nanorc/*.nanorc .nano
     echo "include .nano/*.nanorc" >> ~/.nanorc
 
@@ -120,6 +122,8 @@ function install_nano_syntax_highlighting() {
         sudo cp -r nanorc/*.nanorc /usr/share/nano
         sudo tee -a /etc/nanorc <<< "include /usr/share/nano/*.nanorc"
     fi
+
+    rm -rf nanorc
 }
 
 function install_wezterm_fonts() {
@@ -128,22 +132,14 @@ function install_wezterm_fonts() {
 
     local temp_dir=$(mktemp -d)
 
-    # jetbrains
-    wget https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip
-    unzip JetBrainsMono-2.304.zip -d "$temp_dir"
-    sudo mkdir -p /usr/share/fonts/JettBrainsMono
-    sudo cp -r "$temp_dir"/fonts/ttf/* /usr/share/fonts/JettBrainsMono
-    rm -rf "$temp_dir"
-
     # nerdfont (caskaydiacove)
-    wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip
+    wget -P "$temp_dir" https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip
     unzip CascadiaCode.zip -d "$temp_dir"
     sudo mkdir -p /usr/share/fonts/CaskaydiaCove
     sudo cp "$temp_dir"/*.ttf /usr/share/fonts/CaskaydiaCove
-    rm -rf "$temp_dir"
 
     # noto color emoji
-    wget https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoColorEmoji.ttf
+    wget -P "$temp_dir" https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoColorEmoji.ttf
     sudo cp "$temp_dir"/NotoColorEmoji.ttf /usr/share/fonts
     rm -rf "$temp_dir"
 }
