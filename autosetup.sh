@@ -64,13 +64,15 @@ function install_git() {
 }
 
 function install_yay() {
-    echo "installing yay..."
-    sudo pacman -S --needed base-devel
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
-    makepkg -si
-    cd ..
-    rm -rf yay
+    if ! command -v $1 &> /dev/null; then
+        echo "installing yay..."
+        sudo pacman -S --needed base-devel
+        git clone https://aur.archlinux.org/yay.git
+        cd yay
+        makepkg -si
+        cd ..
+        rm -rf yay
+    fi
 }
 
 function install_zsh() {
@@ -93,7 +95,6 @@ function install_zsh_plugins() {
     rm -rf autojump
 
     sed -i '/^plugins=(/s/\(git\)/\1 zsh-autosuggestions zsh-syntax-highlighting autojump/' ~/.zshrc
-    source ~/.zshrc
 }
 
 function install_zsh_starship() {
@@ -150,6 +151,18 @@ if [[ "$os" == "arch" ]] && [[ ! " $@ " =~ " --skip-yay " ]]; then
     install_yay
 fi
 
+if [[ ! " $@ " =~ " --skip-nano-synhigh " ]]; then
+    install_nano_syntax_highlighting
+fi
+
+if [[ "$os" == "arch" ]] && [[ ! " $@ " =~ " --skip-pacman-color " ]]; then
+    sudo sed -i 's/^#Color/Color/' /etc/pacman.conf
+fi
+
+if [[ ! " $@ " =~ " --skip-wezterm " ]]; then
+    install_wezterm_fonts
+fi
+
 if [[ ! " $@ " =~ " --skip-zsh " ]]; then
     install_zsh
 
@@ -161,18 +174,6 @@ if [[ ! " $@ " =~ " --skip-zsh " ]]; then
     fi
 fi
 
-if [[ ! " $@ " =~ " --skip-nano-synhigh " ]]; then
-    install_nano_syntax_highlighting
-fi
-
-if [[ "$os" == "arch" ]] && [[ ! " $@ " =~ " --skip-pacman-color " ]]; then
-    sudo sed -i 's/^#Color/Color/' /etc/pacman.conf
-fi
-
 if [[ ! " $@ " =~ " --skip-zsh-starship " ]]; then
     install_zsh_starship
-fi
-
-if [[ ! " $@ " =~ " --skip-wezterm " ]]; then
-    install_wezterm_fonts
 fi
