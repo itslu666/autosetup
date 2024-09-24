@@ -136,12 +136,12 @@ function install_wezterm_fonts() {
     # nerdfont (caskaydiacove)
     wget -P "$temp_dir" https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip
     unzip CascadiaCode.zip -d "$temp_dir"
-    sudo mkdir -p /usr/share/fonts/CaskaydiaCove
+    sudo mkdir -p /usr/local/share/fonts/CaskaydiaCove
     sudo cp "$temp_dir"/*.ttf /usr/share/fonts/CaskaydiaCove
 
     # noto color emoji
     wget -P "$temp_dir" https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoColorEmoji.ttf
-    sudo cp "$temp_dir"/NotoColorEmoji.ttf /usr/share/fonts
+    sudo cp "$temp_dir"/NotoColorEmoji.ttf /usr/local/share/fonts/
     rm -rf "$temp_dir"
 }
 
