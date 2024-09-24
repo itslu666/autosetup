@@ -134,15 +134,32 @@ function install_wezterm_fonts() {
     local temp_dir=$(mktemp -d)
 
     # nerdfont (caskaydiacove)
-    wget -P "$temp_dir" https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip
-    unzip CascadiaCode.zip -d "$temp_dir"
-    sudo mkdir -p /usr/local/share/fonts/CaskaydiaCove
-    sudo cp "$temp_dir"/*.ttf /usr/share/fonts/CaskaydiaCove
+    echo "Installing CaskayiaCode..."
+    case "${package_manager[$os]}" in
+        pacman)
+            sudo pacman -S --needed ttf-cascadia-code-nerd
+            ;;
+        apt)
+            sudo apt install -y ttf-cascadia-code-nerd
+            ;;
+        dnf)
+            sudo dnf install -y ttf-cascadia-code-nerd
+            ;;
+    esac
 
     # noto color emoji
-    wget -P "$temp_dir" https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoColorEmoji.ttf
-    sudo cp "$temp_dir"/NotoColorEmoji.ttf /usr/local/share/fonts/
-    rm -rf "$temp_dir"
+    echo "Installing noto emoji..."
+    case "${package_manager[$os]}" in
+        pacman)
+            sudo pacman -S --needed noto-fonts-emoji
+            ;;
+        apt)
+            sudo apt install -y noto-fonts-emoji
+            ;;
+        dnf)
+            sudo dnf install -y noto-fonts-emoji
+            ;;
+    esac
 }
 
 # only install yay if arch os
