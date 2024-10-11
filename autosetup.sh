@@ -75,6 +75,25 @@ function install_yay() {
     fi
 }
 
+function install_wezterm() {
+    echo "installing wezterm..."
+    case "${package_manager[$os]}" in
+        pacman)
+            sudo pacman -S --needed wezterm
+            ;;
+        apt)
+            curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg
+            echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list
+            sudo apt update
+            sudo apt install wezterm
+
+            ;;
+        dnf)
+            sudo dnf install -y https://github.com/wez/wezterm/releases/download/20240203-110809-5046fc22/wezterm-20240203_110809_5046fc22-1.fedora39.x86_64.rpm
+            ;;
+    esac
+}
+
 function install_zsh() {
     # check if curl is installed
     check_installed "curl"
@@ -140,10 +159,10 @@ function install_wezterm_fonts() {
             sudo pacman -S --needed ttf-cascadia-code-nerd
             ;;
         apt)
-            sudo apt install -y ttf-cascadia-code-nerd
+            sudo apt install -y fonts-cascadia-code
             ;;
         dnf)
-            sudo dnf install -y ttf-cascadia-code-nerd
+            sudo dnf install -y cascadia-code-nf-fonts
             ;;
     esac
 
@@ -154,10 +173,10 @@ function install_wezterm_fonts() {
             sudo pacman -S --needed noto-fonts-emoji
             ;;
         apt)
-            sudo apt install -y noto-fonts-emoji
+            sudo apt install -y fonts-noto-color-emoji
             ;;
         dnf)
-            sudo dnf install -y noto-fonts-emoji
+            sudo dnf install -y google-noto-emoji-fonts
             ;;
     esac
 }
@@ -166,6 +185,10 @@ function install_wezterm_fonts() {
 if [[ "$os" == "arch" ]] && [[ ! " $@ " =~ " --skip-yay " ]]; then
     install_git
     install_yay
+fi
+
+if [[ ! " $@ " =~ " --skip-wezterm " ]]; then
+    install_wezterm
 fi
 
 if [[ ! " $@ " =~ " --skip-nano-synhigh " ]]; then
